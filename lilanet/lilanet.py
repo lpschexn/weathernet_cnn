@@ -2,6 +2,7 @@ import torch
 import torch.hub as hub
 import torch.nn as nn
 import torch.nn.functional as F
+import math
 
 # Inspired by https://github.com/TheCodez/pytorch-LiLaNet
 # Implements CNN as described in "Boosting LiDAR-based Semantic Labeling by Cross-Modal Training Data Generation"
@@ -12,6 +13,16 @@ pretrained_models = {
         'num_classes': 4
     }
 }
+
+def h_calc(conv2d, h_in):
+    conv = conv2d.conv
+    h_out = math.floor((h_in + 2*conv.padding[0] - conv.dilation[0] * (conv.kernel_size[0]- 1) -1)/conv.stride[0] + 1)
+    return h_out
+
+def w_calc(conv2d, w_in):
+    conv = conv2d.conv
+    w_out = math.floor((w_in + 2*conv.padding[1] - conv.dilation[1] * (conv.kernel_size[1]- 1) -1)/conv.stride[1] + 1)
+    return w_out
 
 def lilanet(pretrained=None, num_classes=13):
     """Constructs a LilaNet model.
@@ -33,17 +44,19 @@ class LiLaNet(nn.Module):
     # LilaNet CNN
     # num_classes: Number of classes to segment input points in to
 
-    def __init__(self, num_classes=13):
+    def __init__(self, num_classes=2):
         super(LiLaNet, self).__init__()
 
-        self.lila1 = LilaBlock(2, 96)
-        self.lila2 = LilaBlock(96, 128)
-        self.lila3 = LilaBlock(128, 256)
-        self.lila4 = LilaBlock(256, 256)
-        self.test  = nn.Dropout(bruh)
-        self.lila5 = LilaBlock(256, 128)
-        self.classifier = nn.Conv2d(128, num_classes, kernel_size=1)
+        # WeatherNet CNN Layers based on LilaBlocks and Dropout
+        self.lila1 = LilaBlock(2, 32)
+        self.lila2 = LilaBlock(32, 64)
+        self.lila3 = LilaBlock(64, 96)
+        self.lila4 = LilaBlock(96, 96)
+        self.dropout  = nn.Dropout()
+        self.lila5 = LilaBlock(96, 64)
+        self.classifier = nn.Conv2d(64, num_classes, kernel_size=1)
 
+        # Initializing weights
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
@@ -53,12 +66,14 @@ class LiLaNet(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
+    # Primary function to create classification based on distance and reflectivity
     def forward(self, distance, reflectivity):
         x = torch.cat([distance, reflectivity], 1)
         x = self.lila1(x)
         x = self.lila2(x)
         x = self.lila3(x)
         x = self.lila4(x)
+        x = self.dropout(x)
         x = self.lila5(x)
 
         x = self.classifier(x)
@@ -66,21 +81,26 @@ class LiLaNet(nn.Module):
         return x
 
 class LilaBlock(nn.Module):
+    # LilaBlock
+    # Modified to fit WeatherNet
     
     def __init__(self, in_channels, n):
         super(LilaBlock, self).__init__()
 
         self.branch1 = BasicConv2d(in_channels, n, kernel_size=(7,3), padding=(2, 0))
         self.branch2 = BasicConv2d(in_channels, n, kernel_size=3)
-        self.branch3 = BasicConv2d(in_channels, n, kernel_size=(3,7), padding=(0, 2))
-        self.conv = BasicConv2d(n * 3, n, kernel_size=1, padding=1)
+        self.branch3 = BasicConv2d(in_channels, n, kernel_size=3, padding=(1,1), dilation=(2, 2))
+        self.branch4 = BasicConv2d(in_channels, n, kernel_size=(3,7), padding=(0, 2))
+        
+        self.conv = BasicConv2d(n * 4, n, kernel_size=1, padding=1)
 
     def forward(self, x):
         branch1 = self.branch1(x)
         branch2 = self.branch2(x)
         branch3 = self.branch3(x)
+        branch4 = self.branch4(x)
 
-        output = torch.cat([branch1, branch2, branch3], 1)
+        output = torch.cat([branch1, branch2, branch3, branch4], 1)
         output = self.conv(output)
         
         return output
@@ -93,11 +113,18 @@ class BasicConv2d(nn.Module):
         self.bn = nn.BatchNorm2d(out_channels)
 
     def forward(self, x):
+
+        h_in = x.shape[2]
+        w_in = x.shape[3]
+
         x = self.conv(x)
         x = self.bn(x)
+
+        # Check that convolution block made the correct output shape
+        #assert h_calc(self, h_in) == x.shape[2]
+        #assert w_calc(self, w_in) == x.shape[3]
+
         return F.relu(x, inplace=True)
-
-
 
 if __name__ == '__main__':
 
@@ -108,7 +135,7 @@ if __name__ == '__main__':
     # inp:         Input data for testing
     # out:         Output classification
 
-    num_classes, height, width = 4, 64, 512
+    num_classes, height, width = 2, 64, 1024
 
     model = LiLaNet(num_classes) # .to('cuda')
     inp   = torch.randn(5, 1, height, width) # .to('cuda')
