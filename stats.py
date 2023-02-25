@@ -2,6 +2,21 @@ import torch
 
 # Reference formulas https://towardsdatascience.com/precision-and-recall-88a3776c8007
 
+def calc_total_correct(outputs, targets):
+    pass
+
+def calc_total_false_positives(outputs, targets):
+    pass
+
+def calc_total_true_positives(outputs, targets):
+    pass
+
+def calc_true_sum(targets):
+    pass
+
+def calc_false_sum(targets):
+    pass
+
 def calc_true_positive_rate(outputs, targets):
     # Calculate True Positive Rate (a.k.a. Recall)
     # Inputs:
