@@ -1,0 +1,1 @@
+from weathernet_cnn_lib.weathernet import LiLaNet

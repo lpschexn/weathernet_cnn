@@ -67,8 +67,8 @@ class LiLaNet(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     # Primary function to create classification based on distance and reflectivity
-    def forward(self, distance, reflectivity):
-        x = torch.cat([distance, reflectivity], 1)
+    def forward(self, x):
+        # Assumes x is shape of [batch, channels(distance, reflectivity), height, width]
         x = self.lila1(x)
         x = self.lila2(x)
         x = self.lila3(x)
@@ -113,16 +113,8 @@ class BasicConv2d(nn.Module):
         self.bn = nn.BatchNorm2d(out_channels)
 
     def forward(self, x):
-
-        h_in = x.shape[2]
-        w_in = x.shape[3]
-
         x = self.conv(x)
         x = self.bn(x)
-
-        # Check that convolution block made the correct output shape
-        #assert h_calc(self, h_in) == x.shape[2]
-        #assert w_calc(self, w_in) == x.shape[3]
 
         return F.relu(x, inplace=True)
 
