@@ -45,12 +45,10 @@ def calc_false_positive_rate(outputs, targets):
     # Sum up false positives
     total_false_positives = torch.sum(false_positives)
 
-    # Get true negatives (NOT output_guesses AND NOT target_answers)
-    not_output_guesses = torch.logical_not(target_answers).int()
-    true_negatives = torch.logical_and(not_output_guesses, not_target_answers).int()
-    total_true_negatives = torch.sum(true_negatives)
+    # Get total negatives
+    false_sum = torch.sum(not_target_answers)
 
-    return total_false_positives/(total_false_positives + total_true_negatives)
+    return total_false_positives/(false_sum)
 
 def calc_precision(outputs, targets):
     # Calculate Precision
