@@ -113,4 +113,18 @@ class TestWNStatTracker:
 
     def test_set_3(self):
         self.eval_set(self.get_set_3)
+
+    def test_cumulative(self):
+        stats = WNStatTracker()
+
+        predicted, truth, tp_rate, fp_rate, precision = self.get_set_1()
+        eval_precision, eval_tp_rate, eval_fp_rate = stats.calc_sample_stats(predicted, truth)
+        eval_precision, eval_tp_rate, eval_fp_rate = stats.calc_sample_stats(predicted, truth)
+
+        # Make sure cumulative stats are accurate
+        eval_precision, eval_tp_rate, eval_fp_rate,_ = stats.calc_cumulative_stats()
+        assert precision == eval_precision
+        assert tp_rate == eval_tp_rate
+        assert fp_rate == eval_fp_rate
+
         
