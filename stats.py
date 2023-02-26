@@ -26,7 +26,7 @@ class WNStatTracker:
         false_positives = torch.logical_and(output_guesses, not_target_answers).int()
 
         # Sum up false positives
-        return torch.sum(false_positives).int()
+        return torch.sum(false_positives).item()
 
     def __calc_total_true_positives(self, outputs, targets):
         output_guesses = self.__get_label_values(outputs)
@@ -35,16 +35,16 @@ class WNStatTracker:
         # Find True Positives (output_guesses AND target_answers)
         true_positives = torch.logical_and(output_guesses, target_answers).int()
 
-        return torch.sum(true_positives).int()
+        return torch.sum(true_positives).item()
 
     def __calc_true_sum(self, targets):
         target_answers = self.__get_label_values(targets)
-        return torch.sum(target_answers).int()
+        return torch.sum(target_answers).item()
 
     def __calc_false_sum(self, targets):
         target_answers = self.__get_label_values(targets)
         not_target_answers = torch.logical_not(target_answers).int()
-        return torch.sum(not_target_answers)
+        return torch.sum(not_target_answers).item()
 
     def __calc_true_positive_rate(self, outputs, targets):
         """
