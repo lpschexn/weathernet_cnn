@@ -6,11 +6,12 @@ from torch.utils.data import DataLoader
 from dataset import WADSDataset
 from stats import WNStatTracker
 
-PATH = 'models/wn_0.pth'
+SAVED_MODEL_PATH = 'models/wn_0.pth'
+TEST_DATA_PATH   = '/res/test'
 
 # Set up model based on desired model
 model = wn.LiLaNet(num_classes=2)
-model.load_state_dict(torch.load(PATH))
+model.load_state_dict(torch.load(SAVED_MODEL_PATH))
 
 # Set up data loader
 dataset = WADSDataset('res/test')
