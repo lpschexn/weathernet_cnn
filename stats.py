@@ -126,9 +126,9 @@ class WNStatTracker:
         """
 
         # Calculates the important stats
-        precision           = self.__calc_precision(outputs, targets).item()
-        recall              = self.__calc_true_positive_rate(outputs, targets).item()
-        false_positive_rate = self.__calc_false_positive_rate(outputs, targets).item()
+        precision           = self.__calc_precision(outputs, targets)
+        recall              = self.__calc_true_positive_rate(outputs, targets)
+        false_positive_rate = self.__calc_false_positive_rate(outputs, targets)
 
         # Increment the cumulative stats only if the ground truth true/false results are non-zero
         true_sum  = self.__calc_true_sum(targets)
