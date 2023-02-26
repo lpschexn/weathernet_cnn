@@ -78,8 +78,8 @@ class TestWNStatTracker:
         False Positive Rate = False Positives / (True Negatives and False Positives)
         Precision = True Positives / (True Positives and False Positives)
 
-        TP rate = N/A
-        FP rate = 0.0
+        TP rate = N/A, -1
+        FP rate = 0.75
         Precision = 0.0
 
         Returns a Tuple of predicted, truth, true positive rate, false positive rate, precision
@@ -95,22 +95,22 @@ class TestWNStatTracker:
                           [FALLING_SNOW, FALLING_SNOW]]
         predicted = self.__create_target(torch.tensor(predicted_data))
 
-        return predicted, truth, -1, 0.0, 0.0 # N/A -> -1
+        return predicted, truth, -1, 0.75, 0.0 # N/A -> -1
     
     def eval_set(self, test_set_cb):
         stats = WNStatTracker()
         predicted, truth, tp_rate, fp_rate, precision = test_set_cb()
-        eval_precision, eval_tp_rate, eval_fp_rate = stats.calc_sample_states(predicted, truth)
+        eval_precision, eval_tp_rate, eval_fp_rate = stats.calc_sample_stats(predicted, truth)
         assert precision == eval_precision
         assert tp_rate == eval_tp_rate
         assert fp_rate == eval_fp_rate
 
     def test_set_1(self):
-        self.eval_test_set(self.get_test_set_1)
+        self.eval_set(self.get_set_1)
 
     def test_set_2(self):
-        self.eval_test_set(self.get_test_set_2)
+        self.eval_set(self.get_set_2)
 
     def test_set_3(self):
-        self.eval_test_set(self.get_test_set_3)
+        self.eval_set(self.get_set_3)
         
