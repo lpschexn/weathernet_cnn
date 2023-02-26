@@ -6,11 +6,12 @@ from torch.utils.data import DataLoader
 from dataset import WADSDataset
 from stats import WNStatTracker
 
-PATH = 'models/wn_0.pth'
+SAVED_MODEL_PATH = 'models/wn_0.pth'
+TEST_DATA_PATH   = '/res/test'
 
 # Set up model based on desired model
 model = wn.LiLaNet(num_classes=2)
-model.load_state_dict(torch.load(PATH))
+model.load_state_dict(torch.load(SAVED_MODEL_PATH))
 
 # Set up data loader
 dataset = WADSDataset('res/test')
@@ -32,10 +33,8 @@ with torch.no_grad():
 
         outputs = model(inputs)
 
-        # Print precision, recall, and false positive rates
-        precision = stat_tracker.calc_precision(outputs, targets)
-        recall = stat_tracker.calc_true_positive_rate(outputs, targets)
-        false_positives = stat_tracker.calc_false_positive_rate(outputs, targets)
+        # Generate precision, recall, and false positive stats
+        precision, recall, false_positives = stat_tracker.calc_sample_stats(outputs, targets)
 
         print(f'===============================================')
         print(f'Batch Number:                 {i}')
@@ -43,15 +42,13 @@ with torch.no_grad():
         print(f'True Positive Rate (Recall):  {recall}')
         print(f'False Positive Rate:          {false_positives}')
 
+
+precision, recall, false_positives, total_tests = stat_tracker.calc_cumulative_stats()     
+
 print('===============================================')
 print('*Oven Timer Ding* Finished Testing')
-
-cumulative_precision       = stat_tracker.calc_cumulative_precision()
-cumulative_recall          = stat_tracker.calc_cumulative_true_positive_rate()
-cumulative_false_positives = stat_tracker.calc_cumulative_false_positive_rate()
-
 print(f'Cumulative Test Results')
 print(f'Total Number of Tests:        {total_tests}')
-print(f'Precision:                    {cumulative_precision}')
-print(f'True Positive Rate (Recall):  {cumulative_recall}')
-print(f'False Positive Rate:          {cumulative_false_positives}')
+print(f'Precision:                    {precision}')
+print(f'True Positive Rate (Recall):  {recall}')
+print(f'False Positive Rate:          {false_positives}')
