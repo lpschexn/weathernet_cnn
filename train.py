@@ -4,18 +4,23 @@ import torch.nn as nn
 import torch
 from torch.utils.data import DataLoader
 from dataset import WADSDataset
-from stats import calc_true_positive_rate, calc_precision, calc_false_positive_rate
+from stats import WNStatTracker
+
+MODEL_SAVE_PATH = './weathernet_trained.pth'
 
 # Create WeatherNet model with goal of identifying falling snow
 model = wn.LiLaNet(num_classes=2)
 
 # Create a data loader
 dataset = WADSDataset('res/train')
-data_loader = DataLoader(dataset, batch_size=1, shuffle=None)
+data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
 
 # Set up a loss function and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+# Set up stat tracker
+stat_tracker = WNStatTracker()
 
 # Training Loop
 for epoch in range(2):
@@ -37,25 +42,30 @@ for epoch in range(2):
         running_loss += loss.item()
         if i % 5 == 4:
 
-            # Print loss value
+            # Print precision, recall, and false positive rates
+            precision, recall, false_positives = stat_tracker.calc_sample_stats(outputs, targets)
+
+            # Print loss value and stats
             print("=============================================")
             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 5:.3f}')
             running_loss = 0.0
-
-            # Print precision, recall, and false positive rates
-            precision = calc_precision(outputs, targets)
-            recall = calc_true_positive_rate(outputs, targets)
-            false_positives = calc_false_positive_rate(outputs, targets)
-
             print(f'Precision:                    {precision}')
             print(f'True Positive Rate (Recall):  {recall}')
             print(f'False Positive Rate:          {false_positives}')
 
 
 
+precision, recall, false_positives, total_tests = stat_tracker.calc_cumulative_stats()     
+
+print('===============================================')
 print('*Oven Timer Ding* Finished Training')
+print(f'Cumulative Test Results')
+print(f'Total Number of Tests:        {total_tests}')
+print(f'Precision:                    {precision}')
+print(f'True Positive Rate (Recall):  {recall}')
+print(f'False Positive Rate:          {false_positives}')
 
-PATH = './weathernet_trained.pth'
-print('Saving model to:' + PATH)
 
-torch.save(model.state_dict(), PATH)
+print('Saving model to:' + MODEL_SAVE_PATH)
+
+torch.save(model.state_dict(), MODEL_SAVE_PATH)
