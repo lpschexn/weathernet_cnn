@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from dataset import WADSDataset
 from stats import WNStatTracker
 
-SAVED_MODEL_PATH = 'models/wn_0.pth'
+SAVED_MODEL_PATH = 'models/wn_3.pth'
 TEST_DATA_PATH   = '/res/test'
 
 # Set up model based on desired model
@@ -20,13 +20,9 @@ data_loader = DataLoader(dataset, batch_size=1, shuffle=None)
 # Stat Tracker
 stat_tracker = WNStatTracker()
 
-total_tests = 0
-
 # Testing Loop
 with torch.no_grad():
     for i, data in enumerate(data_loader, 0):
-
-        total_tests += 1
 
         # Get inputs and labels
         inputs, targets = data
