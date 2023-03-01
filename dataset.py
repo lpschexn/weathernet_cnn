@@ -3,9 +3,35 @@ import os
 import pandas as pd
 import torch
 import semantic_kitti_data_loader as skdl
+from typing import Tuple
 from torch.utils.data import Dataset
 
 FALLING_SNOW = 110
+UNLABELED = 0
+
+
+def convert_predicted_to_numpy(predicted) -> Tuple[np.array, np.array]:
+    """
+    Converted predicted tensor (not including batch) to a 2D numpy array containing labels
+    """
+    # Get ordering back to HxWxC
+    predicted_numpy = predicted.permute((1,2,0)).numpy()
+
+    m = predicted_numpy.shape[0]
+    n = predicted_numpy.shape[1]
+    predicted_label = np.zeros((m, n))
+
+    for i in range(m):
+        for j in range(n):
+            argmax = np.argmax(predicted_numpy[i,j,:])
+            if argmax == 1: 
+                predicted_label[i,j] = FALLING_SNOW
+            elif argmax == 0:
+                predicted_label[i,j] = UNLABELED
+            else:
+                raise ValueError(f'predicted label has more than 2 channels!')
+    return predicted_label, np.zeros((m, n))
+
 
 class WADSDataset(Dataset):
     def __init__(self, res_path, config_path=None, range_max=70, intensity_max=255):
