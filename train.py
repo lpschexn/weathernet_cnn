@@ -7,12 +7,13 @@ from dataset import WADSDataset
 from stats import WNStatTracker
 
 MODEL_SAVE_PATH = './weathernet_trained.pth'
+TRAIN_DATA_PATH = 'CHANGEME'
 
 # Create WeatherNet model with goal of identifying falling snow
 model = wn.LiLaNet(num_classes=2)
 
 # Create a data loader
-dataset = WADSDataset('res/train')
+dataset = WADSDataset(TRAIN_DATA_PATH)
 data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
 
 # Set up a loss function and optimizer
