@@ -8,7 +8,7 @@ from dataset import WADSDataset
 from stats import WNStatTracker
 
 MODEL_SAVE_PATH = './weathernet_trained.pth'
-TRAIN_DATA_PATH = '/mnt/storage/wads/sequences'
+TRAIN_DATA_PATH = 'CHANGEME'
 INPUT_SIZE = (2, 64, 1024)
 
 # Create WeatherNet model with goal of identifying falling snow
