@@ -3,7 +3,7 @@ import torch.optim as optim
 import torch.nn as nn
 import torch
 from torch.utils.data import DataLoader
-from semantic_kitti_data_loader import SemanticKittiDataLoader
+from semantic_kitti_data_handler import SemanticKittiDataHandler
 from dataset import WADSDataset, convert_predicted_to_numpy
 from stats import WNStatTracker
 
@@ -19,7 +19,7 @@ dataset = WADSDataset(TEST_DATA_PATH)
 data_loader = DataLoader(dataset, batch_size=1, shuffle=None)
 
 # Semantic kitti data handler
-data_handler = SemanticKittiDataLoader(TEST_DATA_PATH)
+data_handler = SemanticKittiDataHandler(TEST_DATA_PATH)
 
 # Stat Tracker
 stat_tracker = WNStatTracker()

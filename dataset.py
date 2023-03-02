@@ -2,7 +2,7 @@ import numpy as np
 import os
 import pandas as pd
 import torch
-import semantic_kitti_data_loader as skdl
+import semantic_kitti_data_handler as skdh
 from typing import Tuple
 from torch.utils.data import Dataset
 
@@ -35,14 +35,14 @@ def convert_predicted_to_numpy(predicted) -> Tuple[np.array, np.array]:
 
 class WADSDataset(Dataset):
     def __init__(self, res_path, config_path=None, range_max=70, intensity_max=255):
-        # Set up data loader
+        # Set up data handler
         if(config_path == None):
-            self.data_loader = skdl.SemanticKittiDataLoader(res_path)
+            self.data_handler = skdh.SemanticKittiDataHandler(res_path)
         else:
-            self.data_loader = skdl.SemanticKittiDataLoader(res_path, config_path)
+            self.data_handler = skdh.SemanticKittiDataHandler(res_path, config_path)
 
         # Get target dictionary loaded
-        self.dict = self.data_loader.get_label_map()
+        self.dict = self.data_handler.get_label_map()
         if self.dict[FALLING_SNOW] != 'snow-falling':
             raise ValueError("label_map dictionary does not have snow-falling in correct location or does not exist.")
         
@@ -51,11 +51,11 @@ class WADSDataset(Dataset):
         self.intensity_max = intensity_max
         
     def __len__(self):
-        return self.data_loader.get_num_samples()
+        return self.data_handler.get_num_samples()
     
     def __getitem__(self, index):
         # Get targeted data and scan
-        label, scan =  self.data_loader.get_data(index)
+        label, scan =  self.data_handler.get_data(index)
 
         target = np.zeros((label.shape[0], label.shape[1], 2))
 
