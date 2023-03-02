@@ -1,3 +1,3 @@
-[submodule "semantic_kitti_data_loader"]
-	path = semantic_kitti_data_loader
-	url = git@bitbucket.org:prometheusborealis/semantic_kitti_data_loader.git
+[submodule "semantic_kitti_data_handler"]
+	path = semantic_kitti_data_handler
+	url = git@bitbucket.org:prometheusborealis/semantic_kitti_data_handler.git
