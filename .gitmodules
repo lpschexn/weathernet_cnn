@@ -1,3 +1,6 @@
+[submodule "roc_utils"]
+	path = roc_utils
+	url = git@bitbucket.org:prometheusborealis/roc_utils.git
 [submodule "semantic_kitti_data_handler"]
 	path = semantic_kitti_data_handler
 	url = git@bitbucket.org:prometheusborealis/semantic_kitti_data_handler.git
