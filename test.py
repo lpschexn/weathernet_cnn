@@ -3,20 +3,24 @@ import torch.optim as optim
 import torch.nn as nn
 import torch
 from torch.utils.data import DataLoader
-from dataset import WADSDataset
+from semantic_kitti_data_handler import SemanticKittiDataHandler
+from dataset import WADSDataset, convert_predicted_to_numpy
 from stats import WNStatTracker
 from roc_utils import Roc
 
-SAVED_MODEL_PATH = 'models/wn_3.pth'
-TEST_DATA_PATH   = '/res/test'
+SAVED_MODEL_PATH = 'weathernet_trained.pth'
+TEST_DATA_PATH   = 'CHANGEME'
 
 # Set up model based on desired model
 model = wn.LiLaNet(num_classes=2)
 model.load_state_dict(torch.load(SAVED_MODEL_PATH))
 
 # Set up data loader
-dataset = WADSDataset('res/test')
+dataset = WADSDataset(TEST_DATA_PATH)
 data_loader = DataLoader(dataset, batch_size=1, shuffle=None)
+
+# Semantic kitti data handler
+data_handler = SemanticKittiDataHandler(TEST_DATA_PATH)
 
 # Stat Tracker
 stat_tracker = WNStatTracker()
@@ -44,6 +48,8 @@ with torch.no_grad():
         # Flatten arrays for ROC analysis
         probs_flat = torch.cat((probs_flat, torch.flatten(probs)))
         targets_flat = torch.cat((targets_flat, torch.flatten(targets)))
+        semantic_prediction, instance_prediction = convert_predicted_to_numpy(outputs[0,:,:,:])
+        data_handler.save_predicted(i, semantic_prediction, instance_prediction)
 
         # Generate precision, recall, and false positive stats
         precision, recall, false_positives = stat_tracker.calc_sample_stats(outputs, targets)

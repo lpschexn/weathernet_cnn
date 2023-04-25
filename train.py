@@ -3,16 +3,20 @@ import torch.optim as optim
 import torch.nn as nn
 import torch
 from torch.utils.data import DataLoader
+from torchsummary import summary
 from dataset import WADSDataset
 from stats import WNStatTracker
 
 MODEL_SAVE_PATH = './weathernet_trained.pth'
+TRAIN_DATA_PATH = 'CHANGEME'
+INPUT_SIZE = (2, 64, 1024)
 
 # Create WeatherNet model with goal of identifying falling snow
 model = wn.LiLaNet(num_classes=2)
+summary(model, INPUT_SIZE)
 
 # Create a data loader
-dataset = WADSDataset('res/train')
+dataset = WADSDataset(TRAIN_DATA_PATH)
 data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
 
 # Set up a loss function and optimizer

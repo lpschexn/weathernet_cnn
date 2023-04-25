@@ -1,29 +1,20 @@
-# README #
+# weathernet_cnn
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This repo trains and tests WeatherNet CNN using [LilaBlocks](https://github.com/TheCodez/pytorch-LiLaNet) and the [WeatherNet architecture](https://arxiv.org/abs/1912.03874).
 
-### What is this repository for? ###
+## Setup
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+We use the [PyTorch](https://pytorch.org/) framework. This has been testing on Ubuntu 20.04 with python3.8.
+To download PyTorch use python's `pip` tool: `pip3 install torch torchvision torchsummary`.
 
-### How do I get set up? ###
+## How to use
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+1. Download WADS dataset and place all sequences in a desired directory
+2. Go to [train.py](train.py) and update `TRAIN_DATA_PATH` to the directory that contains all the training sequences (without trailing back-slash)
+3. Run `python3 train.py`
+4. Go to [test.py](test.py) and update `TEST_DATA_PATH` to the directory that contains all the testing sequences
+5. Run `python3 test.py`
 
-### Contribution guidelines ###
+## Run tests on stats
 
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+To ensure stats are calculated correctly, run `python3 -m pytest test_stats.py` to see results of unit tests.
