@@ -5,6 +5,7 @@ import torch
 from torch.utils.data import DataLoader
 from dataset import WADSDataset
 from stats import WNStatTracker
+from roc_utils import Roc
 
 SAVED_MODEL_PATH = 'models/wn_3.pth'
 TEST_DATA_PATH   = '/res/test'
@@ -20,6 +21,12 @@ data_loader = DataLoader(dataset, batch_size=1, shuffle=None)
 # Stat Tracker
 stat_tracker = WNStatTracker()
 
+# Softmax
+softmax = nn.Softmax2d()
+
+probs_flat = torch.empty(1)
+targets_flat = torch.empty(1)
+
 # Testing Loop
 with torch.no_grad():
     for i, data in enumerate(data_loader, 0):
@@ -28,6 +35,15 @@ with torch.no_grad():
         inputs, targets = data
 
         outputs = model(inputs)
+
+        probs = softmax(outputs)
+
+        print(probs.shape)
+        print(targets.shape)
+
+        # Flatten arrays for ROC analysis
+        probs_flat = torch.cat((probs_flat, torch.flatten(probs)))
+        targets_flat = torch.cat((targets_flat, torch.flatten(targets)))
 
         # Generate precision, recall, and false positive stats
         precision, recall, false_positives = stat_tracker.calc_sample_stats(outputs, targets)
@@ -38,7 +54,6 @@ with torch.no_grad():
         print(f'True Positive Rate (Recall):  {recall}')
         print(f'False Positive Rate:          {false_positives}')
 
-
 precision, recall, false_positives, total_tests = stat_tracker.calc_cumulative_stats()     
 
 print('===============================================')
@@ -48,3 +63,8 @@ print(f'Total Number of Tests:        {total_tests}')
 print(f'Precision:                    {precision}')
 print(f'True Positive Rate (Recall):  {recall}')
 print(f'False Positive Rate:          {false_positives}')
+
+# ROC plotting
+roc = Roc(targets_flat.numpy(), probs_flat.numpy())
+roc.plot_roc()
+roc.save('weathernet')
