@@ -2,6 +2,8 @@
 
 This repo trains and tests WeatherNet CNN using [LilaBlocks](https://github.com/TheCodez/pytorch-LiLaNet) and the [WeatherNet architecture](https://arxiv.org/abs/1912.03874).
 
+A comparison of WeatherNet to DSOR and DROR are documented in "weathernet_v_DSOR.pdf". This document is an amended version of Kurup and Bos' manuscript ["DSOR: A Scalable Statistical Filter for Removing Falling Snow from LiDAR Point Clouds in Severe Winter Weather"](https://arxiv.org/abs/2109.07078).
+
 ## Setup
 
 We use the [PyTorch](https://pytorch.org/) framework. This has been testing on Ubuntu 20.04 with python3.8.
